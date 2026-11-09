@@ -81,18 +81,9 @@ def safe_windows_listdir(path: PathString) -> List[str]:
     """Безопасное получение содержимого каталога в Windows"""
     target = resolve_long_paths_recursive(path)
     try:
-        if is_windows_os():
-            attrs = ctypes.windll.kernel32.GetFileAttributesW(target)
-            return 0 if attrs == INVALID_FILE_ATTRIBUTES else int(attrs)
-        return getattr(os.stat(target), "st_file_attributes", 0)
-    except (OSError, AttributeError):
-        return 0
-    # TODO: Вернуть список элементов каталога или пустой список при ошибке
-    # Обрабатывать Windows-specific ошибки:
-    # - PermissionError (отказ в доступе)
-    # - FileNotFoundError
-    # - OSError для длинных путей
-    pass
+        return os.listdir(target)
+    except (PermissionError, FileNotFoundError, NotADirectoryError, OSError):
+        return []
 def get_file_attributes(path: PathString) -> int:
     """Битовая маска атрибутов Windows (0 при ошибке)."""
     target = resolve_long_paths_recursive(path)

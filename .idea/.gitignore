@@ -1,5 +1,5 @@
-# Default ignored files
+# Игнорируемые файлы по умолчанию
 /shelf/
 /workspace.xml
-# Editor-based HTTP Client requests
+# HTTP-клиент на основе редактора
 /httpRequests/

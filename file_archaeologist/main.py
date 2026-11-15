@@ -16,8 +16,7 @@ MENU = (
     "5 - Вверх (в родительский каталог)\n"
     "6 - Вниз (в подкаталог)\n"
     "7 - Сменить диск\n"
-    "8 - Дерево каталогов\n"
-    "9 - Специальные папки\n"
+    "8 - Специальные папки\n"
     "0 - Выход"
 )
 
@@ -58,18 +57,8 @@ def change_drive(current_path: str) -> str:
     return current_path
 
 
-def show_tree(current_path: str) -> None:
-    """Команда 8: дерево каталогов."""
-    answer = input("Глубина дерева (по умолчанию 2): ").strip()
-    depth = int(answer) if answer.isdigit() else 2
-    tree = navigation.build_windows_tree_recursive(
-        current_path, max_depth=depth)
-    print(tree["name"])
-    print("\n".join(navigation.format_tree(tree)))
-
-
 def go_to_special_folder(current_path: str) -> str:
-    """Команда 9: переход в специальную папку."""
+    """Команда 8: переход в специальную папку."""
     folders = navigation.get_windows_special_folders()
     for name, path in folders.items():
         print(f"  {name}: {path}")
@@ -82,7 +71,7 @@ def go_to_special_folder(current_path: str) -> str:
 
 
 def handle_windows_navigation(command: str, current_path: str) -> str:
-    """Команды 1, 5, 6, 7, 8, 9. Возвращает новый текущий путь."""
+    """Команды 1, 5, 6, 7, 8. Возвращает новый текущий путь."""
     match command:
         case "1":
             ok, items = navigation.list_directory(current_path)
@@ -101,8 +90,6 @@ def handle_windows_navigation(command: str, current_path: str) -> str:
         case "7":
             return change_drive(current_path)
         case "8":
-            show_tree(current_path)
-        case "9":
             return go_to_special_folder(current_path)
     return current_path
 
@@ -127,7 +114,7 @@ def handle_windows_search(command: str, current_path: str) -> None:
 def run_windows_command(command: str, current_path: str) -> str:
     """Маршрутизация команд. Возвращает текущий путь."""
     match command:
-        case "1" | "5" | "6" | "7" | "8" | "9":
+        case "1" | "5" | "6" | "7" | "8":
             return handle_windows_navigation(command, current_path)
         case "2" | "4":
             handle_windows_analysis(command, current_path)

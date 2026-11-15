@@ -124,7 +124,7 @@ def run_windows_command(command: str, current_path: str) -> str:
             print("Неизвестная команда.")
     return current_path
 
-
+3
 def main() -> NoReturn:
     """Главный цикл."""
     check_windows_environment()

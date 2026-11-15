@@ -9,22 +9,22 @@ import utils
 
 def get_current_drive() -> str:
     """Текущий диск, например 'C:'."""
-    drive, _ = os.path.splitdrive(os.getcwd())
-    return drive
+    drive, _ = os.path.splitdrive(os.getcwd()) # getcwd возвращает текущую рабочую папку, splitdrive делит на диск и остаток, остаток не нужен
+    return drive # возвращает диск
 
 
 def list_available_drives() -> List[str]:
     """Доступные диски: ['C:', 'D:', ...]."""
-    drives = []
-    for letter in string.ascii_uppercase:
-        if os.path.exists(f"{letter}:\\"):
-            drives.append(f"{letter}:")
-    return drives
+    drives = [] # список куда будем складывать диски
+    for letter in string.ascii_uppercase: # string.ascii_uppercase это строка "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if os.path.exists(f"{letter}:\\"): # проверяем если есть такой путь(с такой буквой)
+            drives.append(f"{letter}:")    # есть - добавляем
+    return drives # вернем список этот
 
 
 def is_root_path(path: str) -> bool:
     """True, если путь - корень диска (родитель корня он сам)."""
-    return os.path.normpath(path) == utils.get_parent_path(path)
+    return os.path.normpath(path) == utils.get_parent_path(path) # слева приводим путь к нормальному виду, справ родительский каталог, для диска это он C:\
 
 
 def list_directory(path: str) -> Tuple[bool, List[Dict[str, Any]]]:

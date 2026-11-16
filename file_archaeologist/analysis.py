@@ -13,12 +13,10 @@ READONLY, HIDDEN, SYSTEM, REPARSE = 0x1, 0x2, 0x4, 0x400
 
 
 def _attrs(path: str) -> int:
-    """Число с атрибутами Windows (0, если не удалось прочитать)."""
     try:
-        return getattr(os.lstat(path), "st_file_attributes", 0)
+        return os.lstat(path).st_file_attributes
     except OSError:
         return 0
-
 
 def _walk(path: str, depth: int = 0,
           seen: Optional[Set[str]] = None

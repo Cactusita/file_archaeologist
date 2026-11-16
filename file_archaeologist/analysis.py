@@ -1,5 +1,3 @@
-"""analysis.py: анализ файловой системы Windows (роль 3, короткая версия, только I этап)."""
-
 import os
 from collections import defaultdict
 from typing import Any, Dict, Iterator, Optional, Set, Tuple
@@ -21,7 +19,7 @@ def _attrs(path: str) -> int:
 def _walk(path: str, depth: int = 0,
           seen: Optional[Set[str]] = None
           ) -> Iterator[Tuple[str, str, Dict[str, Any]]]:
-    """Рекурсивный обход: отдаёт (вид, полный_путь, словарь)."""
+
     seen = set() if seen is None else seen
     key = os.path.normcase(os.path.abspath(path))
     if depth > MAX_DEPTH or key in seen:  # базовый случай
@@ -42,16 +40,16 @@ def _walk(path: str, depth: int = 0,
             yield "file", full, item
 
 
-# ------------------------------ ЭТАП I ------------------------------
+
 def count_files(path: str) -> Tuple[bool, int]:
-    """Число файлов во всех вложенных папках."""
+
     if not navigation.list_directory(path)[0]:
         return False, 0
     return True, sum(1 for kind, _, _ in _walk(path) if kind == "file")
 
 
 def count_bytes(path: str) -> Tuple[bool, int]:
-    """Суммарный размер файлов в байтах."""
+
     if not navigation.list_directory(path)[0]:
         return False, 0
     return True, sum(i.get("size", 0) for k, _, i in _walk(path)
@@ -60,7 +58,7 @@ def count_bytes(path: str) -> Tuple[bool, int]:
 
 def analyze_windows_file_types(
         path: str) -> Tuple[bool, Dict[str, Dict[str, Any]]]:
-    """{'.exe': {'count': 3, 'total_size': 1234}, ...}"""
+
     if not navigation.list_directory(path)[0]:
         return False, {}
     stats: Dict[str, Dict[str, Any]] = defaultdict(
@@ -74,7 +72,7 @@ def analyze_windows_file_types(
 
 
 def get_windows_file_attributes_stats(path: str) -> Dict[str, int]:
-    """{'hidden': 5, 'system': 2, 'readonly': 10}"""
+
     res = {"hidden": 0, "system": 0, "readonly": 0}
     for _, full, item in _walk(path):
         attrs = _attrs(full)
@@ -85,7 +83,7 @@ def get_windows_file_attributes_stats(path: str) -> Dict[str, int]:
 
 
 def show_windows_directory_stats(path: str) -> bool:
-    """Сводный отчёт по каталогу."""
+
     ok, files = count_files(path)
     if not ok:
         print(f"Не удалось прочитать: {path}")

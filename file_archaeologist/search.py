@@ -12,6 +12,10 @@ SYSTEM_EXTENSIONS = [".exe", ".dll", ".sys"]
 BAD_SYMBOLS = '/:"<>|'
 
 
+def is_link(path: str) -> bool:
+    return os.path.islink(path) or os.path.isjunction(path)
+
+
 def get_all_files(path: str,
                   depth: int = 0) -> List[Tuple[str, Dict[str, Any]]]:
     result = []
@@ -26,7 +30,7 @@ def get_all_files(path: str,
         full_path = os.path.join(path, item["name"])
         if item["type"] == "file":
             result.append((full_path, item))
-        elif item["type"] == "directory":
+        elif item["type"] == "directory" and not is_link(full_path):
             result.extend(get_all_files(full_path, depth + 1))
     return result
 

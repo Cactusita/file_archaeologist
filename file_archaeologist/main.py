@@ -22,7 +22,7 @@ MENU = (
 
 
 def check_windows_environment() -> bool:
-    """Проверка Windows; иначе сообщение и выход."""
+    """Check for Windows; otherwise, display a message and exit."""
     if not utils.is_windows_os():
         print("Программа работает только в Windows.")
         sys.exit(1)
@@ -30,7 +30,7 @@ def check_windows_environment() -> bool:
 
 
 def display_windows_banner() -> None:
-    """Баннер: система и текущий диск."""
+    """Banner: system and current disk."""
     print("=" * 50)
     print("  ФАЙЛОВЫЙ АРХЕОЛОГ  |  2142 г.")
     print(f"  ОС: {platform.system()} {platform.release()}")
@@ -39,14 +39,14 @@ def display_windows_banner() -> None:
 
 
 def display_main_menu(current_path: str) -> None:
-    """Текущий путь, диски и команды."""
+    """Current path, drives, and commands."""
     print(f"\nПуть: {current_path}")
     print("Диски: " + " ".join(navigation.list_available_drives()))
     print(MENU)
 
 
 def change_drive(current_path: str) -> str:
-    """Команда 7: переход на другой диск."""
+    """Command 7: switch to another disk."""
     drives = navigation.list_available_drives()
     answer = input(f"Диск {drives}: ").strip().upper().rstrip("\\")
     if answer in drives:
@@ -58,7 +58,7 @@ def change_drive(current_path: str) -> str:
 
 
 def go_to_special_folder(current_path: str) -> str:
-    """Команда 8: переход в специальную папку."""
+    """Command 8: switch to a special folder."""
     folders = navigation.get_windows_special_folders()
     for name, path in folders.items():
         print(f"  {name}: {path}")
@@ -71,7 +71,7 @@ def go_to_special_folder(current_path: str) -> str:
 
 
 def handle_windows_navigation(command: str, current_path: str) -> str:
-    """Команды 1, 5, 6, 7, 8. Возвращает новый текущий путь."""
+    """Commands 1, 5, 6, 7, 8. Returns the new current path."""
     match command:
         case "1":
             ok, items = navigation.list_directory(current_path)
@@ -95,7 +95,7 @@ def handle_windows_navigation(command: str, current_path: str) -> str:
 
 
 def handle_windows_analysis(command: str, current_path: str) -> None:
-    """Команды 2 и 4."""
+    """Commands 2 and 4."""
     match command:
         case "2":
             analysis.show_windows_directory_stats(current_path)
@@ -106,13 +106,13 @@ def handle_windows_analysis(command: str, current_path: str) -> None:
 
 
 def handle_windows_search(command: str, current_path: str) -> None:
-    """Команда 3: меню поиска, пока пользователь продолжает."""
+    """Command 3: search menu, while the user continues."""
     while search.search_menu_handler(current_path):
         pass
 
 
 def run_windows_command(command: str, current_path: str) -> str:
-    """Маршрутизация команд. Возвращает текущий путь."""
+    """Command routing. Returns the current path."""
     match command:
         case "1" | "5" | "6" | "7" | "8":
             return handle_windows_navigation(command, current_path)
@@ -124,9 +124,9 @@ def run_windows_command(command: str, current_path: str) -> str:
             print("Неизвестная команда.")
     return current_path
 
-3
+
 def main() -> NoReturn:
-    """Главный цикл."""
+    """Main cycle"""
     check_windows_environment()
     display_windows_banner()
     current_path = os.getcwd()
@@ -142,7 +142,7 @@ def main() -> NoReturn:
             break
         except EOFError:
             break
-        except Exception as error:  # верхнеуровневая защита
+        except Exception as error:
             print(f"Ошибка: {error}")
     print("Раскопки завершены.")
     sys.exit(0)

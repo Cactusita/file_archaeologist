@@ -9,8 +9,8 @@ import utils
 
 def get_current_drive() -> str:
     """The current drive, for example 'C:'."""
-    drive, _ = os.path.splitdrive(os.getcwd()) # getcwd возвращает текущую рабочую папку, splitdrive делит на диск и остаток, остаток не нужен
-    return drive # возвращает диск
+    drive, _ = os.path.splitdrive(os.getcwd())
+    return drive
 
 
 def list_available_drives() -> List[str]:
@@ -52,7 +52,7 @@ def list_directory(path: str) -> Tuple[bool, List[Dict[str, Any]]]:
             "system": bool(attributes & utils.FILE_ATTRIBUTE_SYSTEM),
         })
 
-    # сначала папки, потом файлы; внутри групп - по имени без регистра
+
     items.sort(key=lambda item: (item["type"] != "directory",
                                  item["name"].lower()))
     return True, items

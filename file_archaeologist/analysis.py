@@ -22,7 +22,7 @@ def _walk(path: str, depth: int = 0,
 
     seen = set() if seen is None else seen
     key = os.path.normcase(os.path.abspath(path))
-    if depth > MAX_DEPTH or key in seen:  # базовый случай
+    if depth > MAX_DEPTH or key in seen:
         return
     seen.add(key)
     ok, items = navigation.list_directory(path)
@@ -30,12 +30,12 @@ def _walk(path: str, depth: int = 0,
         return
     for item in items:
         full = os.path.join(path, item["name"])
-        if item["type"] in ("dir", "directory"):
+        if item["type"] == "directory":
             if (item["name"].lower() in SKIP_DIRS or os.path.islink(full)
-                    or _attrs(full) & REPARSE):  # junction/symlink
+                    or _attrs(full) & REPARSE):
                 continue
             yield "dir", full, item
-            yield from _walk(full, depth + 1, seen)  # шаг рекурсии
+            yield from _walk(full, depth + 1, seen)
         else:
             yield "file", full, item
 
@@ -65,7 +65,7 @@ def analyze_windows_file_types(
         lambda: {"count": 0, "total_size": 0})
     for kind, _, item in _walk(path):
         if kind == "file":
-            ext = os.path.splitext(item["name"])[1].lower() or "(нет)"
+            ext = os.path.splitext(item["name"])[1].lower()
             stats[ext]["count"] += 1
             stats[ext]["total_size"] += item.get("size", 0)
     return True, dict(stats)

@@ -96,7 +96,7 @@ def safe_windows_listdir(path: PathString) -> List[str]:
 def get_file_attributes(path: PathString) -> int:
     """Windows attributes mask (0 on error)."""
     try:
-        info = os.lstat(_add_long_prefix(str(path))) # запрашивает у Windows сведения о файле: размер, даты, атрибуты
+        info = os.lstat(_add_long_prefix(str(path)))
     except OSError:
         return 0
     return getattr(info, "st_file_attributes", 0)

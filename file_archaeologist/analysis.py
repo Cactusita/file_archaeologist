@@ -1,6 +1,5 @@
 import os
-from collections import defaultdict
-from typing import Any, Dict, Iterator, Optional, Set, Tuple
+from typing import Any, Dict, Tuple
 
 import navigation
 import utils
@@ -16,29 +15,24 @@ def _attrs(path: str) -> int:
     except OSError:
         return 0
 
-def _walk(path: str, depth: int = 0,
-          seen: Optional[Set[str]] = None
-          ) -> Iterator[Tuple[str, str, Dict[str, Any]]]:
+def _walk(path: str, depth: int = 0) -> list:
 
-    seen = set() if seen is None else seen
-    key = os.path.normcase(os.path.abspath(path))
-    if depth > MAX_DEPTH or key in seen:  # базовый случай
-        return
-    seen.add(key)
+    result = []
+    if depth > MAX_DEPTH:
+        return result
     ok, items = navigation.list_directory(path)
     if not ok:
-        return
+        return result
     for item in items:
         full = os.path.join(path, item["name"])
         if item["type"] in ("dir", "directory"):
-            if (item["name"].lower() in SKIP_DIRS or os.path.islink(full)
-                    or _attrs(full) & REPARSE):  # junction/symlink
+            if os.path.islink(full) or _attrs(full) & REPARSE:
                 continue
-            yield "dir", full, item
-            yield from _walk(full, depth + 1, seen)  # шаг рекурсии
+            result.append(("dir", full, item))
+            result += _walk(full, depth + 1)
         else:
-            yield "file", full, item
-
+            result.append(("file", full, item))
+    return result
 
 
 def count_files(path: str) -> Tuple[bool, int]:
@@ -61,14 +55,15 @@ def analyze_windows_file_types(
 
     if not navigation.list_directory(path)[0]:
         return False, {}
-    stats: Dict[str, Dict[str, Any]] = defaultdict(
-        lambda: {"count": 0, "total_size": 0})
+    stats = {}
     for kind, _, item in _walk(path):
         if kind == "file":
-            ext = os.path.splitext(item["name"])[1].lower() or "(нет)"
+            ext = os.path.splitext(item["name"])[1].lower()
+            if ext not in stats:
+                stats[ext] = {"count": 0, "total_size": 0}
             stats[ext]["count"] += 1
             stats[ext]["total_size"] += item.get("size", 0)
-    return True, dict(stats)
+    return True, stats
 
 
 def get_windows_file_attributes_stats(path: str) -> Dict[str, int]:
@@ -88,18 +83,33 @@ def show_windows_directory_stats(path: str) -> bool:
     if not ok:
         print(f"Не удалось прочитать: {path}")
         return False
-    dirs = sum(1 for k, _, _ in _walk(path) if k == "dir")
-    print(f"Файлов: {files}, папок: {dirs}, "
-          f"размер: {utils.format_size(count_bytes(path)[1])}")
-    types = analyze_windows_file_types(path)[1]
-    print("Типы (топ-5 по размеру):")
-    for ext, d in sorted(types.items(), key=lambda kv: -kv[1]["total_size"])[:5]:
-        print(f"  {ext:<10}{d['count']:>6} шт. "
-              f"{utils.format_size(d['total_size'])}")
-    print("Атрибуты:", get_windows_file_attributes_stats(path))
-    big = sorted(((i.get("size", 0), f) for k, f, i in _walk(path)
-                  if k == "file"), reverse=True)[:5]
+    _, total = count_bytes(path)
+    _, types = analyze_windows_file_types(path)
+    attrs = get_windows_file_attributes_stats(path)
+
+    dirs = 0
+    big = []
+    for kind, full, item in _walk(path):
+        if kind == "dir":
+            dirs += 1
+        else:
+            big.append((item.get("size", 0), full))
+    big.sort(reverse=True)
+
+    print(f"Файлов: {files}, папок: {dirs}")
+    print(f"Размер: {utils.format_size(total)}")
+
+    print("Типы файлов (топ-5 по размеру):")
+    rows = []
+    for ext, data in types.items():
+        rows.append((data["total_size"], ext, data["count"]))
+    rows.sort(reverse=True)
+    for size, ext, count in rows[:5]:
+        print(f"  {ext}: {count} шт., {utils.format_size(size)}")
+
+    print("Атрибуты:", attrs)
+
     print("Крупнейшие файлы:")
-    for size, full in big:
-        print(f"  {utils.format_size(size):>10}  {full}")
+    for size, full in big[:5]:
+        print(f"  {utils.format_size(size)}  {full}")
     return True

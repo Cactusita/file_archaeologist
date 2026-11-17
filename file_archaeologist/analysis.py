@@ -25,7 +25,7 @@ def _walk(path: str, depth: int = 0) -> list:
         return result
     for item in items:
         full = os.path.join(path, item["name"])
-        if item["type"] in ("dir", "directory"):
+        if item["type"] == "directory":
             if os.path.islink(full) or _attrs(full) & REPARSE:
                 continue
             result.append(("dir", full, item))
